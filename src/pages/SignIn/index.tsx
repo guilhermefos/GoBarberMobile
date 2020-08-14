@@ -1,9 +1,16 @@
 import React, {useCallback, useRef} from 'react';
-import {Image, View, ScrollView, KeyboardAvoidingView, Platform, TextInput} from 'react-native';
+import {
+  Image,
+  View,
+  ScrollView,
+  KeyboardAvoidingView,
+  Platform,
+  TextInput,
+} from 'react-native';
 import Icon from 'react-native-vector-icons/Feather';
-import { useNavigation } from "@react-navigation/native";
-import { Form } from "@unform/mobile";
-import { FormHandles } from "@unform/core";
+import {useNavigation} from '@react-navigation/native';
+import {Form} from '@unform/mobile';
+import {FormHandles} from '@unform/core';
 
 import {
   Container,
@@ -11,7 +18,7 @@ import {
   ForgotPassword,
   ForgotPasswordText,
   CreateAccountButton,
-  CreateAccountButtonText
+  CreateAccountButtonText,
 } from './styles';
 
 import Input from '../../components/Input';
@@ -25,20 +32,18 @@ const SingIn: React.FC = () => {
   const passwordInputRef = useRef<TextInput>(null);
 
   const handleSubmit = useCallback((data: object) => {
-    console.log(data)
+    console.log(data);
   }, []);
 
   return (
     <>
       <KeyboardAvoidingView
-        style={{ flex: 1 }}
+        style={{flex: 1}}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        enabled
-      >
+        enabled>
         <ScrollView
           keyboardShouldPersistTaps="handled"
-          contentContainerStyle={{ flex: 1 }}
-        >
+          contentContainerStyle={{flex: 1}}>
           <Container>
             <Image source={logo} />
 
@@ -46,10 +51,7 @@ const SingIn: React.FC = () => {
               <Title>Faça o seu Logon</Title>
             </View>
 
-            <Form
-              ref={formRef}
-              onSubmit={handleSubmit}
-            >
+            <Form ref={formRef} onSubmit={handleSubmit}>
               <Input
                 autoCorrect={false}
                 autoCapitalize="none"
@@ -70,16 +72,15 @@ const SingIn: React.FC = () => {
                 placeholder="Senha"
                 secureTextEntry
                 returnKeyType="send"
-                onSubmitEditing={ () => {
+                onSubmitEditing={() => {
                   formRef.current?.submitForm();
                 }}
               />
 
-              <Button onPress={
-                () => {
+              <Button
+                onPress={() => {
                   formRef.current?.submitForm();
-                }}
-              >
+                }}>
                 Entrar
               </Button>
             </Form>
@@ -93,9 +94,7 @@ const SingIn: React.FC = () => {
 
       <CreateAccountButton onPress={() => navigation.navigate('SignUp')}>
         <Icon name="log-in" size={2} color="#ff9000" />
-        <CreateAccountButtonText>
-          Criar uma conta
-        </CreateAccountButtonText>
+        <CreateAccountButtonText>Criar uma conta</CreateAccountButtonText>
       </CreateAccountButton>
     </>
   );
