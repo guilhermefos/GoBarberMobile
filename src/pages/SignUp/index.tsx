@@ -1,21 +1,33 @@
-import React, { useRef, useCallback } from 'react';
-import {Image, View, ScrollView, KeyboardAvoidingView, Platform, TextInput} from 'react-native';
-import Icon from 'react-native-vector-icons/Feather';
-import { useNavigation } from "@react-navigation/native";
-import { Form } from "@unform/mobile";
-import { FormHandles } from "@unform/core";
-
+import React, {useRef, useCallback} from 'react';
 import {
-  Container,
-  Title,
-  BackToSignIn,
-  BackToSignInText
-} from './styles';
+  Image,
+  View,
+  Alert,
+  ScrollView,
+  KeyboardAvoidingView,
+  Platform,
+  TextInput,
+} from 'react-native';
+import * as Yup from 'yup';
+import Icon from 'react-native-vector-icons/Feather';
+import {useNavigation} from '@react-navigation/native';
+import {Form} from '@unform/mobile';
+import {FormHandles} from '@unform/core';
 
+import {Container, Title, BackToSignIn, BackToSignInText} from './styles';
+
+import api from '../../services/api';
+import getValidationErrors from '../../utils/getValidationErrors';
 import Input from '../../components/Input';
 import Button from '../../components/Button';
 
 import logo from '../../assets/logo.png';
+
+interface formData {
+  name: string;
+  email: string;
+  password: string;
+}
 
 const SignUp: React.FC = () => {
   const navigation = useNavigation();
@@ -23,21 +35,50 @@ const SignUp: React.FC = () => {
   const emailInputRef = useRef<TextInput>(null);
   const passwordInputRef = useRef<TextInput>(null);
 
-  const handleSubmit = useCallback((data: object) => {
-    console.log(data)
-  }, []);
+  const handleSubmit = useCallback(
+    async (data: formData) => {
+      try {
+        formRef.current?.setErrors({});
+
+        const schema = Yup.object().shape({
+          name: Yup.string().required('Nome obrigatório'),
+          email: Yup.string()
+            .required('E-mail obrigatório')
+            .email('Digite um email válido'),
+          password: Yup.string().min(6, 'No minimo 6 digitos'),
+        });
+
+        await schema.validate(data, {
+          abortEarly: false,
+        });
+
+        await api.post('/users', data);
+
+        Alert.alert(
+          'Cadastro realizado com sucesso!',
+          'Você já pode fazer login na aplicação',
+        );
+
+        navigation.goBack();
+      } catch (error) {
+        const errors = getValidationErrors(error);
+        formRef.current?.setErrors(errors);
+
+        Alert.alert('Erro no cadastro', 'Ocorreu um erro ao fazer cadastro');
+      }
+    },
+    [navigation],
+  );
 
   return (
     <>
       <KeyboardAvoidingView
-        style={{ flex: 1 }}
+        style={{flex: 1}}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        enabled
-      >
+        enabled>
         <ScrollView
           keyboardShouldPersistTaps="handled"
-          contentContainerStyle={{ flex: 1 }}
-        >
+          contentContainerStyle={{flex: 1}}>
           <Container>
             <Image source={logo} />
 
@@ -45,10 +86,7 @@ const SignUp: React.FC = () => {
               <Title>Crie sua conta</Title>
             </View>
 
-            <Form
-              ref={formRef}
-              onSubmit={handleSubmit}
-            >
+            <Form ref={formRef} onSubmit={handleSubmit}>
               <Input
                 autoCapitalize="words"
                 name="name"
@@ -56,7 +94,7 @@ const SignUp: React.FC = () => {
                 placeholder="Nome"
                 returnKeyType="next"
                 onSubmitEditing={() => {
-                  emailInputRef.current?.focus()
+                  emailInputRef.current?.focus();
                 }}
               />
 
@@ -70,7 +108,7 @@ const SignUp: React.FC = () => {
                 placeholder="E-mail"
                 returnKeyType="next"
                 onSubmitEditing={() => {
-                  passwordInputRef.current?.focus()
+                  passwordInputRef.current?.focus();
                 }}
               />
 
@@ -85,22 +123,20 @@ const SignUp: React.FC = () => {
                 onSubmitEditing={() => formRef.current?.submitForm()}
               />
 
-              <Button onPress={() => {
-                formRef.current?.submitForm();
-              }}>
+              <Button
+                onPress={() => {
+                  formRef.current?.submitForm();
+                }}>
                 Entrar
               </Button>
             </Form>
-
           </Container>
         </ScrollView>
       </KeyboardAvoidingView>
 
       <BackToSignIn onPress={() => navigation.navigate('SignIn')}>
         <Icon name="arrow-left" size={20} color="#fff" />
-        <BackToSignInText>
-          Entre com sua conta
-        </BackToSignInText>
+        <BackToSignInText>Entre com sua conta</BackToSignInText>
       </BackToSignIn>
     </>
   );
