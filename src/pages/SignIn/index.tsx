@@ -8,7 +8,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   TextInput,
-} from 'react-native'; 
+} from 'react-native';
 import Icon from 'react-native-vector-icons/Feather';
 import {useNavigation} from '@react-navigation/native';
 import {Form} from '@unform/mobile';
